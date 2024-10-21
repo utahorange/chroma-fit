@@ -1,4 +1,5 @@
 import gradio as gr
+import detect_face_attributes
 
 def upload_image(image):
     return image
@@ -15,3 +16,10 @@ interface = gr.Interface(
 # Launch the interface
 interface.launch()
 
+# image uploaded
+
+# call detect_face_attributes, pictures of just face w white bg, just eyes, etc created
+
+# gcloud api dominant color determined for face, eyes, etc
+
+# color analysis done w api's

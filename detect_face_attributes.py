@@ -1,6 +1,10 @@
+from google.cloud import vision
+
+
+
+
 def detect_faces(path):
     """Detects faces in an image."""
-    from google.cloud import vision
 
     client = vision.ImageAnnotatorClient()
 
