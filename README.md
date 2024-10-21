@@ -1,1 +1,1 @@
-# spotle-ai
+# color analysis ai
