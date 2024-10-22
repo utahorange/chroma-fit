@@ -1,45 +1,49 @@
 from google.cloud import vision
+from Pillow import Image
+import os
 
+downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads") # this part will change based on how we implement our image upload later
+image_path = os.path.join(downloads_folder, "headshot.jpeg")
+# print(image_path)
 
+client = vision.ImageAnnotatorClient()
 
+with open(image_path, "rb") as image_file:
+    content = image_file.read()
 
-def detect_faces(path):
-    """Detects faces in an image."""
+image = vision.Image(content=content)
 
-    client = vision.ImageAnnotatorClient()
+response = client.face_detection(image=image)
+face = response.face_annotations
+face_landmarks = face[0].landmarks
 
-    with open(path, "rb") as image_file:
-        content = image_file.read()
+# print(face_landmarks)
 
-    image = vision.Image(content=content)
+# Names of likelihood from google.cloud.vision.enums
+likelihood_name = (
+    "UNKNOWN",
+    "VERY_UNLIKELY",
+    "UNLIKELY",
+    "POSSIBLE",
+    "LIKELY",
+    "VERY_LIKELY",
+)
 
-    response = client.face_detection(image=image)
-    faces = response.face_annotations
+vertices = [
+    f"({vertex.x},{vertex.y})" for vertex in face[0].bounding_poly.vertices
+]
 
-    # Names of likelihood from google.cloud.vision.enums
-    likelihood_name = (
-        "UNKNOWN",
-        "VERY_UNLIKELY",
-        "UNLIKELY",
-        "POSSIBLE",
-        "LIKELY",
-        "VERY_LIKELY",
+print("face bounds: {}".format(",".join(vertices)))
+
+original_img = Image.open(image_path)
+face_img = original_img.crop(vertices[3][0],vertices[3][1],vertices[2][0],vertices[2][1]) # last coord first, 2nd one second
+# right_eye_img = original_img.crop()
+# left_eye_img = original_img.crop()
+
+print(face_landmarks)
+
+if response.error.message:
+    raise Exception(
+        "{}\nFor more info on error messages, check: "
+        "https://cloud.google.com/apis/design/errors".format(response.error.message)
     )
-    print("Faces:")
-
-    for face in faces:
-        print(f"anger: {likelihood_name[face.anger_likelihood]}")
-        print(f"joy: {likelihood_name[face.joy_likelihood]}")
-        print(f"surprise: {likelihood_name[face.surprise_likelihood]}")
-
-        vertices = [
-            f"({vertex.x},{vertex.y})" for vertex in face.bounding_poly.vertices
-        ]
-
-        print("face bounds: {}".format(",".join(vertices)))
-
-    if response.error.message:
-        raise Exception(
-            "{}\nFor more info on error messages, check: "
-            "https://cloud.google.com/apis/design/errors".format(response.error.message)
-        )
