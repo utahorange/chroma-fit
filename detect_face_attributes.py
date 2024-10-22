@@ -1,5 +1,5 @@
 from google.cloud import vision
-from Pillow import Image
+from PIL import Image
 import os
 
 downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads") # this part will change based on how we implement our image upload later
@@ -30,17 +30,22 @@ likelihood_name = (
 )
 
 vertices = [
-    f"({vertex.x},{vertex.y})" for vertex in face[0].bounding_poly.vertices
+    (vertex.x,vertex.y) for vertex in face[0].bounding_poly.vertices
 ]
 
-print("face bounds: {}".format(",".join(vertices)))
-
+# print("face bounds: {}".format(",".join(vertices)))
+print(vertices)
 original_img = Image.open(image_path)
-face_img = original_img.crop(vertices[3][0],vertices[3][1],vertices[2][0],vertices[2][1]) # last coord first, 2nd one second
+
+face_img = original_img.crop((vertices[0][0],vertices[1][1],vertices[1][0],vertices[2][1])) # (left, upper, right, lower) 
+# face_img.show()
+
+# ---- to work on here ---
+
 # right_eye_img = original_img.crop()
 # left_eye_img = original_img.crop()
 
-print(face_landmarks)
+# print(face_landmarks)
 
 if response.error.message:
     raise Exception(
