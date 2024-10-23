@@ -18,9 +18,12 @@ def detect_attributes(image_path):
     face = response.face_annotations
     face_landmarks = face[0].landmarks
 
-    # print(face_landmarks)
-
-    # Names of likelihood from google.cloud.vision.enums
+    if response.error.message:
+        raise Exception(
+            "{}\nFor more info on error messages, check: "
+            "https://cloud.google.com/apis/design/errors".format(response.error.message)
+        )
+ 
     likelihood_name = (
         "UNKNOWN",
         "VERY_UNLIKELY",
@@ -30,15 +33,14 @@ def detect_attributes(image_path):
         "VERY_LIKELY",
     )
 
-    vertices = [
+    face_vertices = [
         (vertex.x,vertex.y) for vertex in face[0].bounding_poly.vertices
     ]
 
-    # print("face bounds: {}".format(",".join(vertices)))
-    print(vertices)
+    print(face_vertices)
     original_img = Image.open(image_path)
 
-    face_img = original_img.crop((vertices[0][0],vertices[1][1],vertices[1][0],vertices[2][1])) # (left, upper, right, lower)
+    face_img = original_img.crop((face_vertices[0][0],face_vertices[1][1],face_vertices[1][0],face_vertices[2][1])) # (left, upper, right, lower)
 
     # ---- to work on here ---
 
@@ -46,10 +48,5 @@ def detect_attributes(image_path):
     # left_eye_img = original_img.crop()
 
     # print(face_landmarks)
-
-    if response.error.message:
-        raise Exception(
-            "{}\nFor more info on error messages, check: "
-            "https://cloud.google.com/apis/design/errors".format(response.error.message)
-        )
+    
     return(vertices)
