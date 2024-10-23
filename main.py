@@ -1,11 +1,12 @@
 import gradio as gr #type: ignore
 import detect_face_attributes
 import detect_primary_color
+import skin_tone
 import os
 from PIL import Image
 from pillow_heif import register_heif_opener #type: ignore
 
-def upload_image(image): # WIP
+def upload_image(image): 
     # image uploaded
     if(not image.endswith("jpeg")):
         if(image.endswith("heic")): 
@@ -13,6 +14,7 @@ def upload_image(image): # WIP
             image.save(filepath, format='jpeg')
         else:
             print("file type is not jpeg")
+    '''
     # call detect_face_attributes, pictures of just face w white bg, just eyes, etc created
     vertices = detect_face_attributes.detect_attributes(image)
     # need to save image to filepath
@@ -21,6 +23,8 @@ def upload_image(image): # WIP
     primary_color = detect_primary_color.detect_properties(image, vertices)
     # color analysis done w api's
     return image
+    '''
+    return(skin_tone.get_skin_tone(image)) # returns a tuple of rgb color
 
 # Create Gradio interface
 interface = gr.Interface(
