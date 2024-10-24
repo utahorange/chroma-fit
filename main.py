@@ -40,8 +40,9 @@ interface = gr.Interface(
     fn=upload_image,  # The function to process the uploaded image
     inputs=gr.Image(type='filepath'),  # Input is an image file
     outputs=gr.HTML(label="Generated Color Palettes"),  # Output is also displayed as an image
-    title="Simple Image Uploader",
-    description="Upload an image file and display it below."
+    title="ChromaFit",
+    description="Upload an image to see your color analysis!",
+    flagging_mode="never"
 )
 
 # Launch the interface
