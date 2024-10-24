@@ -30,7 +30,6 @@ def detect_properties(image_input):
     #     print(f"\tr: {color.color.red}")
     #     print(f"\tg: {color.color.green}")
     #     print(f"\tb: {color.color.blue}")
-    #     print(f"\ta: {color.color.alpha}")
 
     #if errors
     if response.error.message:

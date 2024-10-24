@@ -3,6 +3,7 @@ import gradio as gr
 import colorsys
 from colorsys import rgb_to_hsv
 import re
+import random
 
 def parse_rgb_string(rgb_string):
     rgb_values = re.findall(r'\d+', rgb_string)
@@ -39,8 +40,9 @@ def season(color1, color2, color3):
 
         h, l, s = colorsys.rgb_to_hls(int(float(r))/255, int(float(g))/255, int(float(b))/255)
         hue_degrees = h * 360
+        print("hue", "light", hue_degrees, l)
 
-        if hue_degrees < 90 or hue_degrees > 270:
+        if hue_degrees < 90:
             temperature = 'Warm'
         else:
             temperature = 'Cold'
@@ -73,7 +75,7 @@ def season(color1, color2, color3):
     max_count = max(season.values())
     most_common_seasons = [key for key, value in season.items() if value == max_count]
     
-    return most_common_seasons[0]
+    return most_common_seasons[random.randint(0, len(most_common_seasons)-1)]
 
 
 def generate_palette(color1, color2, color3):

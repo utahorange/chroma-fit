@@ -28,7 +28,6 @@ def upload_image(face_image):
 
     average_eye_rgb = ((left_eye_primary_color.color.red + right_eye_primary_color.color.red)/2, (left_eye_primary_color.color.green + right_eye_primary_color.color.green)/2, (left_eye_primary_color.color.blue + right_eye_primary_color.color.blue)/2)
     lip_rgb = (lip_primary_color.color.red, lip_primary_color.color.green, lip_primary_color.color.blue)
-    lip_rgb = (235, 129, 129)
     print(skin_primary_color, average_eye_rgb, lip_rgb)
 
     # color analysis done w api's

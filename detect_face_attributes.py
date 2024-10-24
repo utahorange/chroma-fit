@@ -107,7 +107,7 @@ def detect_attributes(image_path):
     cropped_right_eye = img_pil.crop(right_eye_box)
 
     # Return the three cropped images: lips, left eye, and right eye
-    return cropped_lips, cropped_left_eye, cropped_right_eye
+    return cropped_left_eye, cropped_right_eye, cropped_lips
 
 
 
