@@ -3,18 +3,14 @@ from google.cloud import vision
 from PIL import Image
 import io
 
-def detect_properties(path, vertices):
+def detect_properties(image_input):
     """Detects image properties in the file."""    
 
     client = vision.ImageAnnotatorClient()
 
-    #take the original image path, and crop it
-    original_img = Image.open(path)
-    face_img = original_img.crop((vertices[0][0],vertices[1][1],vertices[1][0],vertices[2][1])) # (left, upper, right, lower)
-
     #convert cropped image to bytes so it can be utilized by google cloud vision
     b = io.BytesIO()
-    face_img.save(b, 'jpeg')
+    image_input.save(b, 'jpeg')
     im_bytes = b.getvalue()
 
     #convert this to image processable by google cloud vision
