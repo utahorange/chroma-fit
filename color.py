@@ -1,9 +1,37 @@
 import requests
 import gradio as gr
 import colorsys
+from colorsys import rgb_to_hsv
+import re
 
-def season(color1, color2, color3, color4):
-    colors = [color1, color2, color3, color4]
+def parse_rgb_string(rgb_string):
+    rgb_values = re.findall(r'\d+', rgb_string)
+    return tuple(map(int, rgb_values))
+
+def rgb_tuple_to_string(rgb_tuple):
+    return f'rgb({rgb_tuple[0]}, {rgb_tuple[1]}, {rgb_tuple[2]})'
+
+def sort_by_hue(rgb_colors_str):
+    rgb_colors = [parse_rgb_string(c) for c in rgb_colors_str]
+    sorted_colors = sorted(rgb_colors, key=lambda rgb: rgb_to_hsv(rgb[0]/255, rgb[1]/255, rgb[2]/255))
+    return [rgb_tuple_to_string(rgb) for rgb in sorted_colors]
+
+def brightness(rgb):
+    return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+def filter_black_white(rgb_colors_str, black_threshold=20, white_threshold=235):
+    rgb_colors = [parse_rgb_string(c) for c in rgb_colors_str]
+    
+    filtered_colors = [ #anything too close to black or white
+        rgb for rgb in rgb_colors
+        if black_threshold < brightness(rgb) < white_threshold
+    ]
+    
+    return [rgb_tuple_to_string(rgb) for rgb in filtered_colors]
+
+
+def season(color1, color2, color3):
+    colors = [color1, color2, color3]
     season = {'Spring': 0, 'Summer': 0, 'Autumn': 0, 'Winter': 0, 'Transitional': 0}
 
     for color in colors:
@@ -51,14 +79,13 @@ def season(color1, color2, color3, color4):
     return most_common_seasons[0]
 
 
-def generate_palette(color1, color2, color3, color4):
+def generate_palette(color1, color2, color3):
     base_url = "https://www.thecolorapi.com/scheme"
     
     init_palette = []
     fin_palette = []
     
-    colors = [color1, color2, color3, color4]
-    print(colors)
+    colors = [color1, color2, color3]
     colors = [process_rgba(color) for color in colors]
 
     for color in colors:
@@ -91,62 +118,23 @@ def generate_palette(color1, color2, color3, color4):
         data = response.json()
         fin_palette += [color_data['rgb']['value'] for color_data in data['colors']]
 
-    
-    # for color in colors:
-    #     params1 = {
-    #         "rgb": color, 
-    #         "mode": "triad",        #color scheme mode - analogic, monochrome, triad, etc.
-    #         "count": 3                 
-    #     }
-    #     params2 = {
-    #         "rgb": color, 
-    #         "mode": "monochrome-light",        #color scheme mode - analogic, monochrome, triad, etc.
-    #         "count": 1                 
-    #     }
-    #     params3 = {
-    #         "rgb": color, 
-    #         "mode": "quad",        #color scheme mode - analogic, monochrome, triad, etc.
-    #         "count": 6                 
-    #     }
-    #     params4 = {
-    #         "rgb": color, 
-    #         "mode": "monochrome-dark",        #color scheme mode - analogic, monochrome, triad, etc.
-    #         "count": 1                 
-    #     }
-
-
-    #     response = requests.get(base_url, params=params1)
-    #     data = response.json()
-    #     palette_result += [color_data['rgb']['value'] for color_data in data['colors']]
-    #     print(palette_result)
-
-    #     response2 = requests.get(base_url, params=params2)
-    #     data2 = response2.json()
-    #     palette_result += [color_data['rgb']['value'] for color_data in data2['colors']]
-
-    #     response3 = requests.get(base_url, params=params3)
-    #     data3 = response3.json()
-    #     palette_result += [color_data['rgb']['value'] for color_data in data3['colors']]
-
-    #     response4 = requests.get(base_url, params=params4)
-    #     data4 = response4.json()
-    #     palette_result += [color_data['rgb']['value'] for color_data in data4['colors']]
 
     fin_palette = list(set(fin_palette))
+    fin_palette = sort_by_hue(fin_palette)
+    fin_palette = filter_black_white(fin_palette)
     return fin_palette
 
 def process_rgba(val):
     val = val[5:-1]
-    print(val)
     val = val.split(', ')
     r, g, b, a = val
     return f'rgb({int(float(r))},{int(float(g))},{int(float(b))})'
 
 
 #gradio prep
-def gradio_interface(color1, color2, color3, color4):
-    palette = generate_palette(color1, color2, color3, color4)
-    seasons = season(color1, color2, color3, color4)
+def gradio_interface(color1, color2, color3):
+    palette = generate_palette(color1, color2, color3)
+    seasons = season(color1, color2, color3)
     
     output_html = "<h3>Generated Palettes:</h3>"
 
@@ -170,11 +158,10 @@ gradio_app = gr.Interface(
         gr.ColorPicker(label="Color 1"), 
         gr.ColorPicker(label="Color 2"), 
         gr.ColorPicker(label="Color 3"), 
-        gr.ColorPicker(label="Color 4")
     ], 
     outputs=gr.HTML(label="Generated Color Palettes"),
     title="Color Palette Generator",
-    description="input four colors to generate a palette for each using The Color API."
+    description="input three colors to generate a palette for each using The Color API."
 )
 
 gradio_app.launch()
