@@ -35,10 +35,7 @@ def season(color1, color2, color3):
     season = {'Spring': 0, 'Summer': 0, 'Autumn': 0, 'Winter': 0, 'Transitional': 0}
 
     for color in colors:
-        col = color[5:-1]
-        col = col.split(', ')
-
-        r, g, b, a = col
+        r, g, b = color[0], color[1], color[2]
 
         h, l, s = colorsys.rgb_to_hls(int(float(r))/255, int(float(g))/255, int(float(b))/255)
         hue_degrees = h * 360
@@ -125,9 +122,7 @@ def generate_palette(color1, color2, color3):
     return fin_palette
 
 def process_rgba(val):
-    val = val[5:-1]
-    val = val.split(', ')
-    r, g, b, a = val
+    r, g, b = val[0], val[1], val[2]
     return f'rgb({int(float(r))},{int(float(g))},{int(float(b))})'
 
 
@@ -152,16 +147,16 @@ def gradio_interface(color1, color2, color3):
 
 
 #gradio interface
-gradio_app = gr.Interface(
-    fn=gradio_interface, 
-    inputs=[
-        gr.ColorPicker(label="Color 1"), 
-        gr.ColorPicker(label="Color 2"), 
-        gr.ColorPicker(label="Color 3"), 
-    ], 
-    outputs=gr.HTML(label="Generated Color Palettes"),
-    title="Color Palette Generator",
-    description="input three colors to generate a palette for each using The Color API."
-)
+# gradio_app = gr.Interface(
+#     fn=gradio_interface, 
+#     inputs=[
+#         gr.ColorPicker(label="Color 1"), 
+#         gr.ColorPicker(label="Color 2"), 
+#         gr.ColorPicker(label="Color 3"), 
+#     ], 
+#     outputs=gr.HTML(label="Generated Color Palettes"),
+#     title="Color Palette Generator",
+#     description="input three colors to generate a palette for each using The Color API."
+# )
 
-gradio_app.launch()
+# gradio_app.launch()

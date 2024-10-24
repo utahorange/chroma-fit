@@ -19,7 +19,7 @@ def detect_properties(image_input):
     #find the most dominant color
     response = client.image_properties(image=image)
     props = response.image_properties_annotation
-    print("Properties:")
+    # print("Properties:")
 
     #sort it by percentage of pixels
     props.dominant_colors.colors.sort(key=lambda x: x.pixel_fraction, reverse=True)

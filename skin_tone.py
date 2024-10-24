@@ -11,4 +11,4 @@ def get_skin_tone(image_path):
     rgb_color = tuple(int((skin_tone.lstrip('#'))[i:i+2], 16) for i in (0, 2, 4))
 
     return(rgb_color)
-get_skin_tone("")
+# get_skin_tone("")
