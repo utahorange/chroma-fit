@@ -31,12 +31,5 @@ def detect_properties(image_input):
     #     print(f"\tg: {color.color.green}")
     #     print(f"\tb: {color.color.blue}")
 
-    #if errors
-    if response.error.message:
-        raise Exception(
-            "{}\nFor more info on error messages, check: "
-            "https://cloud.google.com/apis/design/errors".format(response.error.message)
-        )
-    
     #NEED TO CHANGE THIS (because of background)
     return(props.dominant_colors.colors[0])

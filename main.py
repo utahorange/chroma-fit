@@ -33,8 +33,6 @@ def upload_image(face_image):
     # color analysis done w api's
     return(color.gradio_interface(skin_primary_color, average_eye_rgb, lip_rgb))
 
-    # return(face_image)
-
 # Create Gradio interface
 interface = gr.Interface(
     fn=upload_image,  # The function to process the uploaded image
