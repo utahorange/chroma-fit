@@ -10,7 +10,7 @@ def detect_properties(image_input):
 
     #convert cropped image to bytes so it can be utilized by google cloud vision
     b = io.BytesIO()
-    image_input.save(b, 'jpeg')
+    image_input.save(b, 'png')
     im_bytes = b.getvalue()
 
     #convert this to image processable by google cloud vision

@@ -132,6 +132,6 @@ def detect_attributes(image_path):
 
 
 #testing
-cropped_lips, cropped_left_eye, cropped_right_eye = detect_attributes("/Users/yashagarwal/Downloads/taiyu_headshot.jpg")
+# cropped_lips, cropped_left_eye, cropped_right_eye = detect_attributes("/Users/yashagarwal/Downloads/taiyu_headshot.jpg")
 
 
