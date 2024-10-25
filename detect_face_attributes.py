@@ -2,8 +2,12 @@ import cv2
 import mediapipe as mp
 from PIL import Image
 from google.cloud import vision
+import numpy as np
+
 import os
 import matplotlib.pyplot as plt
+from PIL import Image, ImageDraw
+
 
 # Initialize MediaPipe Face Mesh
 mp_face_mesh = mp.solutions.face_mesh
@@ -13,7 +17,8 @@ def detect_attributes(image_path):
     # Read the image using OpenCV
     img = cv2.imread(image_path)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    
+    img_height, img_width = img.shape[:2]
+
     # Process the image and detect face landmarks
     results = face_mesh.process(img_rgb)
     
@@ -27,47 +32,62 @@ def detect_attributes(image_path):
     # Get the landmarks for the first detected face
     landmarks = results.multi_face_landmarks[0].landmark
     
-    # Define indices for the specified lip landmarks
-    upper_lip_top_left_index = 185
-    upper_lip_top_right_index = 409
-    lower_lip_bottom_left_index = 375
-    lower_lip_bottom_right_index = 146
-    top_lip_index = 0
-    bottom_lip_index = 17
+    # Indices for upper and lower lip landmarks (user-specified)
+    upper_lip_points = [
+    landmarks[76], landmarks[61], landmarks[185], landmarks[40], landmarks[39],
+    landmarks[37], landmarks[0], landmarks[267], landmarks[269], landmarks[270], 
+    landmarks[409], landmarks[291], landmarks[307], landmarks[408], landmarks[304],
+    landmarks[303], landmarks[302], landmarks[11], landmarks[72], landmarks[73],
+    landmarks[74], landmarks[184]
+    ]
 
-    # Get the landmarks for the specified lip points
-    upper_lip_top_left = landmarks[upper_lip_top_left_index]
-    upper_lip_top_right = landmarks[upper_lip_top_right_index]
-    lower_lip_bottom_left = landmarks[lower_lip_bottom_left_index]
-    lower_lip_bottom_right = landmarks[lower_lip_bottom_right_index]
-    top_lip = landmarks[top_lip_index]
-    bottom_lip = landmarks[bottom_lip_index]
+    lower_lip_points = [
+        landmarks[76], landmarks[61], landmarks[146], landmarks[91], landmarks[181], 
+        landmarks[84], landmarks[17], landmarks[314], landmarks[405], landmarks[321], 
+        landmarks[375], landmarks[291], landmarks[306], landmarks[307], landmarks[320], 
+        landmarks[404], landmarks[315], landmarks[16], landmarks[85], landmarks[180], 
+        landmarks[90], landmarks[77]
+    ]
+   # Convert landmark points to pixel coordinates
+    def landmark_to_pixel(landmark, img_width, img_height):
+        return int(landmark.x * img_width), int(landmark.y * img_height)
+    
+    
+    
+  # Combine upper and lower lip points
+    lip_points = upper_lip_points + lower_lip_points
 
-    # Calculate the bounding box for the lips
-    img_height, img_width, _ = img.shape
+    # Convert lip points to pixel coordinates
+    lip_pixel_coords = [landmark_to_pixel(point, img_width, img_height) for point in lip_points]
 
-    def get_crop_box_lips(upper_left, upper_right, lower_left, lower_right, top_lip, bottom_lip, img_width, img_height):
-        x_min = int(min(upper_left.x, upper_right.x, lower_left.x, lower_right.x) * img_width)
-        x_max = int(max(upper_left.x, upper_right.x, lower_left.x, lower_right.x) * img_width)
-        y_min = int(top_lip.y * img_height)  # Use the y-coordinate of the top lip landmark
-        y_max = int(bottom_lip.y * img_height)  # Use the y-coordinate of the bottom lip landmark
-        return (x_min, y_min, x_max, y_max)
+    # Create a mask for the lips
+    mask = np.zeros((img_height, img_width), dtype=np.uint8)
+    lip_contour = np.array(lip_pixel_coords, dtype=np.int32)
+    cv2.fillPoly(mask, [lip_contour], 255)
 
-    # Get the crop box for the lips
-    lip_box = get_crop_box_lips(
-        upper_lip_top_left, 
-        upper_lip_top_right, 
-        lower_lip_bottom_left, 
-        lower_lip_bottom_right, 
-        top_lip, 
-        bottom_lip,
-        img_width, 
-        img_height
-    )
+    # Apply the mask to the image to isolate the lips
+    lips_only = cv2.bitwise_and(img, img, mask=mask)
 
-    # Crop lips using the calculated bounding box
-    cropped_lips = img_pil.crop(lip_box)
+    # Crop the lips based on the bounding box of the lip points
+    x, y, w, h = cv2.boundingRect(lip_contour)
+    cropped_lips = lips_only[y:y+h, x:x+w]
+    cropped_mask = mask[y:y+h, x:x+w]
 
+    # Convert cropped image to RGBA (4 channels: R, G, B, A)
+    cropped_lips_rgba = cv2.cvtColor(cropped_lips, cv2.COLOR_BGR2RGBA)
+
+    # Set the alpha channel (A) to be the cropped mask
+    cropped_lips_rgba[:, :, 3] = cropped_mask
+
+    # Convert the result to a PIL image for easier display and saving
+    cropped_lips = Image.fromarray(cropped_lips_rgba)
+    
+    #transparent_image.show()
+    
+    
+    
+    
+    
     # Google Cloud Vision API for eyes
     client = vision.ImageAnnotatorClient()
     with open(image_path, "rb") as image_file:
@@ -112,13 +132,6 @@ def detect_attributes(image_path):
 
 
 #testing
-'''cropped_lips, cropped_left_eye, cropped_right_eye = detect_attributes("/Users/yashagarwal/Downloads/taiyu_headshot.jpg")
+cropped_lips, cropped_left_eye, cropped_right_eye = detect_attributes("/Users/yashagarwal/Downloads/taiyu_headshot.jpg")
 
-# Optionally, you can save the cropped images
-if cropped_lips:
-    cropped_lips.save("cropped_lips.jpg")
-if cropped_left_eye:
-    cropped_left_eye.save("cropped_left_eye.jpg")
-if cropped_right_eye:
-    cropped_right_eye.save("cropped_right_eye.jpg")'''
 
