@@ -1,13 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
+import React, {useEffect, useState} from 'react'
 
 function App() {
+
+  const[skin_primary_color, setAccuracy] = useState(0)
+
+  useEffect(() =>  {
+
+  },[])
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+        Output: {skin_primary_color}
         </p>
         <a
           className="App-link"
