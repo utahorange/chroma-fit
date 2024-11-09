@@ -5,8 +5,6 @@ from google.cloud import vision
 import numpy as np
 import os
 
-import matplotlib.pyplot as plt
-
 # Convert landmark points to pixel coordinates
 def landmark_to_pixel(landmark, img_width, img_height):
     return int(landmark.x * img_width), int(landmark.y * img_height)
