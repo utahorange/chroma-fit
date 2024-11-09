@@ -12,7 +12,6 @@ app = Flask(__name__)
 
 @app.route('/api/ml')
 
-
 def upload_image(): 
     # print("Generating colors...")
     # image uploaded
@@ -25,26 +24,31 @@ def upload_image():
     downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads") # this part will change based on how we implement our image upload later
     face_image = os.path.join(downloads_folder, "headshot.jpeg")
     
-    # call detect_face_attributes, pictures of just face w white bg, just eyes, etc created
-    left_eye_image, right_eye_image, lip_image = detect_face_attributes.detect_attributes(face_image)
+    skin_primary_color = skin_tone.get_skin_tone(face_image)
+
+    # # call detect_face_attributes, pictures of just face w white bg, just eyes, etc created
+    #left_eye_image, right_eye_image, lip_image = detect_face_attributes.detect_attributes(face_image)
     
-    # gcloud api dominant color determined for face, eyes, etc
-    #skin_primary_color = skin_tone.get_skin_tone(face_image)
+    # # gcloud api dominant color determined for face, eyes, etc
+    # skin_primary_color = skin_tone.get_skin_tone(face_image)
     #left_eye_primary_color = detect_primary_color.detect_properties(left_eye_image)
     #right_eye_primary_color = detect_primary_color.detect_properties(right_eye_image)
-    # lip_primary_color = detect_primary_color.detect_properties(lip_image)
+    #lip_primary_color = detect_primary_color.detect_properties(lip_image)
 
-    # average_eye_rgb = ((left_eye_primary_color.color.red + right_eye_primary_color.color.red)/2, (left_eye_primary_color.color.green + right_eye_primary_color.color.green)/2, (left_eye_primary_color.color.blue + right_eye_primary_color.color.blue)/2)
+    #average_eye_rgb = ((left_eye_primary_color.color.red + right_eye_primary_color.color.red)/2, (left_eye_primary_color.color.green + right_eye_primary_color.color.green)/2, (left_eye_primary_color.color.blue + right_eye_primary_color.color.blue)/2)
     # lip_rgb = (lip_primary_color.color.red, lip_primary_color.color.green, lip_primary_color.color.blue)
-    # print(skin_primary_color, average_eye_rgb, lip_rgb)
+    # # print(skin_primary_color, average_eye_rgb, lip_rgb)
 
     # what we should be doing here is now calling color.py, which will return html code (???), 
     # which we will give to App.js, it will then display those colors with our javascript code ideally
     # but rn, we'll just return colors for mvp
     # a = (color.get_color_palette(skin_primary_color, average_eye_rgb, lip_rgb))
     # print(a)
-    return([(1,2,3),(4,5,6),(7,8,9)])
-    # return({"skin_primary_color" : 123, "average_eye_rgb" :average_eye_rgb, "lip_rgb": lip_rgb}) # returns now a dictionary of RGB tuples
+    #return({"":skin_primary_color})
+    average_eye_rgb = 1
+    lip_rgb = 2
+    return({"skin_primary_color" : skin_primary_color, "average_eye_rgb" :average_eye_rgb, "lip_rgb": lip_rgb}) # returns now a dictionary of RGB tuples
+
 app.run(debug=True)
 # # Create Gradio interface
 # interface = gr.Interface(

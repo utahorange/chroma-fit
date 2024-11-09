@@ -5,19 +5,19 @@ from google.cloud import vision
 import numpy as np
 import os
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # Convert landmark points to pixel coordinates
 def landmark_to_pixel(landmark, img_width, img_height):
     return int(landmark.x * img_width), int(landmark.y * img_height)
     
 def detect_attributes(image_path):
-    #return(1,1,1)
+    print('here!')
     # Initialize MediaPipe Face Mesh
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)
 
-    # Read the image using OpenCV
+    # # Read the image using OpenCV
     img = cv2.imread(image_path)
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_height, img_width = img.shape[:2]
@@ -29,13 +29,13 @@ def detect_attributes(image_path):
         print("No faces detected.")
         return None, None, None
     
-    # Open the image using PIL to crop and display
+    # # Open the image using PIL to crop and display
     img_pil = Image.open(image_path)
 
-    # Get the landmarks for the first detected face
+    # # Get the landmarks for the first detected face
     landmarks = results.multi_face_landmarks[0].landmark
     
-    # Indices for upper and lower lip landmarks (user-specified)
+    # # Indices for upper and lower lip landmarks (user-specified)
     upper_lip_points = [
     landmarks[76], landmarks[61], landmarks[185], landmarks[40], landmarks[39],
     landmarks[37], landmarks[0], landmarks[267], landmarks[269], landmarks[270], 
@@ -52,13 +52,13 @@ def detect_attributes(image_path):
         landmarks[90], landmarks[77]
     ]
    
-    # Combine upper and lower lip points
+    # # Combine upper and lower lip points
     lip_points = upper_lip_points + lower_lip_points
 
     # Convert lip points to pixel coordinates
     lip_pixel_coords = [landmark_to_pixel(point, img_width, img_height) for point in lip_points]
 
-    # Create a mask for the lips
+    # # Create a mask for the lips
     mask = np.zeros((img_height, img_width), dtype=np.uint8)
     lip_contour = np.array(lip_pixel_coords, dtype=np.int32)
     cv2.fillPoly(mask, [lip_contour], 255)
@@ -82,7 +82,7 @@ def detect_attributes(image_path):
     
     #transparent_image.show()
     
-    # Google Cloud Vision API for eyes
+    # # Google Cloud Vision API for eyes
     client = vision.ImageAnnotatorClient()
     with open(image_path, "rb") as image_file:
         content = image_file.read()
@@ -95,14 +95,14 @@ def detect_attributes(image_path):
         print("No faces detected with Vision API.")
         return cropped_lips, None, None
 
-    # Use the first detected face
+    # # Use the first detected face
     face = faces[0]
 
-    # Get coordinates for eye facial landmarks
+    # # Get coordinates for eye facial landmarks
     left_eye = face.landmarks[0].position  # LEFT_EYE
     right_eye = face.landmarks[1].position  # RIGHT_EYE
 
-    # Crop left eye, right eye
+    # # Crop left eye, right eye
     eye_radius = 7  # Define a radius to crop around the eye
 
     def crop_region_eye(center, width, height, left_offset=0):
@@ -112,15 +112,19 @@ def detect_attributes(image_path):
         lower = int(center.y) + height // 2
         return (left, upper, right, lower)
 
-    # Crop regions for eyes
+    # # Crop regions for eyes
     left_eye_box = crop_region_eye(left_eye, eye_radius * 2, eye_radius * 2)
     right_eye_box = crop_region_eye(right_eye, eye_radius * 2, eye_radius * 2)
 
-    # Crop the eyes
+    # # Crop the eyes
     cropped_left_eye = img_pil.crop(left_eye_box)
     cropped_right_eye = img_pil.crop(right_eye_box)
 
     # Return the three cropped images: lips, left eye, and right eye
+
+    # cropped_left_eye = 1
+    # cropped_right_eye = 1
+    # cropped_lips = 1
     return cropped_left_eye, cropped_right_eye, cropped_lips
 
 
