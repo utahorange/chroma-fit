@@ -12,7 +12,7 @@ def landmark_to_pixel(landmark, img_width, img_height):
     return int(landmark.x * img_width), int(landmark.y * img_height)
     
 def detect_attributes(image_path):
-    print('here!')
+    return(50,50,50)
     # Initialize MediaPipe Face Mesh
     mp_face_mesh = mp.solutions.face_mesh
     face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)

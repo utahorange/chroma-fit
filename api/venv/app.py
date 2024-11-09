@@ -45,8 +45,8 @@ def upload_image():
     # a = (color.get_color_palette(skin_primary_color, average_eye_rgb, lip_rgb))
     # print(a)
     #return({"":skin_primary_color})
-    average_eye_rgb = 1
-    lip_rgb = 2
+    # average_eye_rgb = 1
+    # lip_rgb = 2
     return({"skin_primary_color" : skin_primary_color, "average_eye_rgb" :average_eye_rgb, "lip_rgb": lip_rgb}) # returns now a dictionary of RGB tuples
 
 app.run(debug=True)

@@ -4,8 +4,6 @@ from PIL import Image
 import io
 
 def detect_properties(image_input):
-    """Detects image properties in the file."""    
-
     client = vision.ImageAnnotatorClient()
 
     #convert cropped image to bytes so it can be utilized by google cloud vision
