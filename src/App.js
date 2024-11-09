@@ -4,10 +4,10 @@ import React, {useState, useEffect} from 'react'
 
 function App() {
 
-  const[skin_primary_color, setAccuracy] = useState(0)
+  const[skin_primary_color, setColors] = useState(0)
 
   useEffect(() =>  {
-
+    fetch("/api/ml").then(res => res.json()).then(data => {setColors(data.skin_primary_color)})
   },[])
   return (
     <div className="App">
@@ -16,14 +16,6 @@ function App() {
         <p>
         Output: {skin_primary_color}
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
       </header>
     </div>
   );
