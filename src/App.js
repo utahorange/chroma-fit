@@ -18,6 +18,9 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h3>Generated Palettes:</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 50px)', gridGap: '5px' }}>
+          <div style={{ backgroundColor: (100,100,100), width: '50px', height: '50px' }}></div>
+        </div>
         <p>
         output: {web_content}
         </p>
