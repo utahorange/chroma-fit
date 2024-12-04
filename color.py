@@ -4,6 +4,7 @@ import colorsys
 from colorsys import rgb_to_hsv
 import re
 import random
+import numpy as np
 
 def parse_rgb_string(rgb_string):
     rgb_values = re.findall(r'\d+', rgb_string)
@@ -30,9 +31,63 @@ def filter_black_white(rgb_colors_str, black_threshold=20, white_threshold=235):
     
     return [rgb_tuple_to_string(rgb) for rgb in filtered_colors]
 
+def is_too_dark(h, s, l, threshold=0.2):
+    return l < threshold or l > 0.9
 
-def season(color1, color2, color3):
-    colors = [color1, color2, color3]
+def remove_too_dark(colors, threshold=0.2):
+    """
+    Removes colors that are too dark based on the lightness in HSL color space.
+    
+    :param colors: List of RGB colors to check.
+    :param threshold: Lightness threshold below which the color is considered too dark.
+    :return: List of colors that are not too close to black.
+    """
+    filtered_colors = []
+    
+    for color in colors:
+        r, g, b = parse_rgb_string(color)
+        # Convert RGB to HLS
+        h, s, l = colorsys.rgb_to_hls(r/255.0, g/255.0, b/255.0)
+        h = h * 360  # Convert hue to degrees (0 to 360)
+        
+        # If the color is not too close to black, keep it
+        if not is_too_dark(h, s, l, threshold):
+            filtered_colors.append(color)
+    
+    return filtered_colors
+
+
+
+def color_distance(c1, c2):
+    """
+    Computes the Euclidean distance between two colors in the RGB space.
+    The smaller the distance, the more similar the colors are.
+    """
+    print(c1,c2)
+    return np.sqrt((c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2)
+
+
+def remove_similar_colors(colors, threshold=30):
+    """
+    Removes colors that are too similar based on a distance threshold.
+    The function returns a list of unique colors that are sufficiently different from each other.
+    
+    :param colors: List of colors (each color is a tuple of RGB values)
+    :param threshold: Minimum distance between colors to consider them different
+    """
+    unique_colors = [colors[0]] if len(colors) > 0 else []
+
+    for color in colors:
+        # Check if the color is too similar to any already in the list
+        if all(color_distance(parse_rgb_string(color), parse_rgb_string(other)) > threshold for other in unique_colors):
+            unique_colors.append(color)
+    
+    return unique_colors
+
+
+def season(colors):
+    # colors = [color1, color2, color3]
+    colors = list(colors)
     season = {'Spring': 0, 'Summer': 0, 'Autumn': 0, 'Winter': 0, 'Transitional': 0}
 
     for color in colors:
@@ -119,8 +174,11 @@ def generate_palette(color1, color2, color3):
 
 
     fin_palette = list(set(fin_palette))
-    fin_palette = sort_by_hue(fin_palette)
     fin_palette = filter_black_white(fin_palette)
+    fin_palette = remove_too_dark(fin_palette)
+    fin_palette = remove_similar_colors(fin_palette, threshold=50)
+    fin_palette = sort_by_hue(fin_palette)
+
     return fin_palette
 
 def process_rgba(val):
@@ -128,10 +186,10 @@ def process_rgba(val):
     return f'rgb({int(float(r))},{int(float(g))},{int(float(b))})'
 
 
-#gradio prep
+# #gradio prep
 def gradio_interface(color1, color2, color3):
     palette = generate_palette(color1, color2, color3)
-    seasons = season(color1, color2, color3)
+    seasons = season(palette)
     
     output_html = "<h3>Generated Palettes:</h3>"
 
@@ -148,7 +206,7 @@ def gradio_interface(color1, color2, color3):
     return output_html
 
 
-#gradio interface
+# #gradio interface
 # gradio_app = gr.Interface(
 #     fn=gradio_interface, 
 #     inputs=[
