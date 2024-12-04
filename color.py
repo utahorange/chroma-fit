@@ -91,7 +91,7 @@ def season(colors):
     season = {'Spring': 0, 'Summer': 0, 'Autumn': 0, 'Winter': 0, 'Transitional': 0}
 
     for color in colors:
-        r, g, b = color[0], color[1], color[2]
+        r, g, b = parse_rgb_string(color)[0], parse_rgb_string(color)[1], parse_rgb_string(color)[2]
 
         h, l, s = colorsys.rgb_to_hls(int(float(r))/255, int(float(g))/255, int(float(b))/255)
         hue_degrees = h * 360
